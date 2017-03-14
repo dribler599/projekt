@@ -39,7 +39,26 @@ public class CustomerManagerImplTest {
         assertThat("Acquired customer is the same instance.", result, is(not(sameInstance(customer))));
         assertDeepEquals(customer, result);
 
+        //customer is null
+        try{
+            manager.createCustomer(null);
+            fail();
+        }catch (NullPointerException ex){
+            // OK
+        }catch (Exception ex){
+            fail();
+        }
 
+        //same id
+        try{
+            manager.createCustomer(new Customer(Long.valueOf(20),"Honza", day, "HonzaStreet1",
+                    "Honza@mail.null", "666666666"));
+            fail();
+        }catch(IllegalArgumentException ex){
+            // OK
+        }catch(Exception ex){
+            fail();
+        }
     }
 
     @org.junit.Test
@@ -62,7 +81,16 @@ public class CustomerManagerImplTest {
         assertNull(manager.getCustomer(customer1.getId()));
         assertNotNull(manager.getCustomer(customer2.getId()));
 
+        try{
+            manager.deleteCustomer(null);
+            fail();
+        }catch (NullPointerException ex){
+            // OK
+        }catch (Exception ex){
+            fail();
+        }
     }
+
 
     @org.junit.Test
     public void getAllCustomers(){
