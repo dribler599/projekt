@@ -28,7 +28,7 @@ public class MovieManagerImplTest {
         assertEquals(movie, gotMovie1);
         assertNotSame(movie, gotMovie1);
 
-        movie = new MovieBuilder().withId(321L).build();
+        movie = new MovieBuilder().build();
         manager.createMovie(movie);
 
         Movie gotMovie2 = manager.getMovie(movie.getId());
@@ -46,15 +46,7 @@ public class MovieManagerImplTest {
         } catch (IllegalArgumentException e) {
         }
 
-
-        Movie movie = new MovieBuilder().withId(null).build();
-        try {
-            manager.createMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-
-        movie = new MovieBuilder().withName(";").build();
+        Movie movie = new MovieBuilder().withName(";").build();
         try {
             manager.createMovie(movie);
             fail();
@@ -67,20 +59,12 @@ public class MovieManagerImplTest {
             fail();
         } catch (IllegalArgumentException e) {
         }
-
-        movie = new MovieBuilder().withId(-1L).build();
-        try {
-            manager.createMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
     }
 
     @Test
     public void updateMovie() throws Exception {
-        Movie movie = new MovieBuilder().withId(123L).withLocation("doma").build();
+        Movie movie = new MovieBuilder().withLocation("doma").build();
         Movie movie2 = new MovieBuilder()
-                .withId(555L)
                 .withName("Ján Jakub")
                 .withYear(1999)
                 .withClassification("18")
@@ -178,14 +162,6 @@ public class MovieManagerImplTest {
 
         try {
             movie = manager.getMovie(movieId);
-            movie.setName("malé začiatočné písmená");
-            manager.updateMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-
-        try {
-            movie = manager.getMovie(movieId);
             movie.setName(null);
             manager.updateMovie(movie);
             fail();
@@ -203,8 +179,8 @@ public class MovieManagerImplTest {
 
     @Test
     public void deleteMovie() throws Exception {
-        Movie movie = new MovieBuilder().withId(123L).build();
-        Movie movie2 = new MovieBuilder().withId(321L).build();
+        Movie movie = new MovieBuilder().build();
+        Movie movie2 = new MovieBuilder().build();
         manager.createMovie(movie);
         manager.createMovie(movie2);
 
@@ -216,7 +192,7 @@ public class MovieManagerImplTest {
 
     @Test
     public void deleteMovieWithWrongParameters() throws Exception {
-        Movie movie = new MovieBuilder().withId(123L).build();
+        Movie movie = new MovieBuilder().build();
         manager.createMovie(movie);
 
         try {
