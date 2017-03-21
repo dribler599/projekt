@@ -148,16 +148,104 @@ public class LeaseManagerImplTest {
         manager.createLease(lease2);
         Long leaseId = lease.getId();
         Long lease2Id = lease2.getId();
+
+        try {
+            manager.updateLease(null);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+
+        try {
+            lease = manager.getLease(leaseId);
+            lease.setId(-1L);
+            manager.updateLease(lease);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+
+        try {
+            lease = manager.getLease(leaseId);
+            lease.setId(null);
+            manager.updateLease(lease);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+
+        try {
+            lease = manager.getLease(leaseId);
+            lease.setMovie(null);
+            manager.updateLease(lease);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+
+        try {
+            lease = manager.getLease(leaseId);
+            lease.setCustomer(null);
+            manager.updateLease(lease);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+
+        try {
+            lease = manager.getLease(leaseId);
+            lease.setDateOfRent(LocalDate.of(2000, Month.JANUARY, 2));
+            lease.setDateOfReturn(LocalDate.of(2000, Month.JANUARY, 1));
+            manager.updateLease(lease);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     @Test
     public void deleteLease() throws Exception {
+        Lease lease = new LeaseBuilder().build();
+        Lease lease2 = new LeaseBuilder().build();
+        manager.createLease(lease);
+        manager.createLease(lease2);
 
+        manager.deleteLease(lease);
+
+        assertThat(manager.getLease(lease.getId())).isNull();
+        assertThat(manager.getLease(lease2.getId())).isNotNull();
+    }
+
+    @Test
+    public void deleteLeaseWithWrongParameters() throws Exception {
+        Lease lease = new LeaseBuilder().build();
+        manager.createLease(lease);
+
+        try {
+            manager.deleteLease(null);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+
+        try {
+            lease.setId(null);
+            manager.deleteLease(lease);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+
+        try {
+            lease.setId(-1L);
+            manager.deleteLease(lease);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     @Test
     public void getAllLeases() throws Exception {
+        assertThat(manager.getAllLeases()).isEmpty();
 
+        Lease lease = new LeaseBuilder().build();
+        Lease lease2 = new LeaseBuilder().build();
+        manager.createLease(lease);
+        manager.createLease(lease2);
+
+        assertThat(manager.getAllLeases()).containsOnly(lease, lease2);
     }
 
     @Test
