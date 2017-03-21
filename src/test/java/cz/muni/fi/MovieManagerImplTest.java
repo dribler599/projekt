@@ -145,14 +145,6 @@ public class MovieManagerImplTest {
 
         try {
             movie = manager.getMovie(movieId);
-            movie.setId(movie2Id);
-            manager.updateMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-
-        try {
-            movie = manager.getMovie(movieId);
             movie.setId(null);
             manager.updateMovie(movie);
             fail();
