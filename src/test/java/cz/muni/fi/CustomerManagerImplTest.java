@@ -1,5 +1,7 @@
 package cz.muni.fi;
 
+import org.junit.Test;
+
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
@@ -23,10 +25,10 @@ public class CustomerManagerImplTest {
     }
 
     @org.junit.Test
-    public void createCustomer(){
+    public void createCustomer() throws Exception{
 
         LocalDate day = LocalDate.of(2014, Month.JANUARY, 1);
-        Customer customer = new Customer(Long.valueOf(20),"Honza", day, "HonzaStreet1",
+        Customer customer = new Customer(20L,"Honza", day, "HonzaStreet1",
                 "Honza@mail.null", "666666666");
 
         manager.createCustomer(customer);
@@ -38,36 +40,20 @@ public class CustomerManagerImplTest {
         assertThat("Acquired customer differs from the testing one", result, is(equalTo(customer)));
         assertThat("Acquired customer is the same instance.", result, is(not(sameInstance(customer))));
         assertDeepEquals(customer, result);
+    }
 
-        //customer is null
-        try{
-            manager.createCustomer(null);
-            fail();
-        }catch (NullPointerException ex){
-            // OK
-        }catch (Exception ex){
-            fail();
-        }
-
-        //same id
-        try{
-            manager.createCustomer(new Customer(Long.valueOf(20),"Honza", day, "HonzaStreet1",
-                    "Honza@mail.null", "666666666"));
-            fail();
-        }catch(IllegalArgumentException ex){
-            // OK
-        }catch(Exception ex){
-            fail();
-        }
+    @Test(expected = IllegalArgumentException.class)
+    public void createNullCustomer() {
+        manager.createCustomer(null);
     }
 
     @org.junit.Test
-    public void deleteCustomer() {
+    public void deleteCustomer() throws Exception{
         LocalDate day = LocalDate.of(2014, Month.JANUARY, 1);
-        Customer customer1 = new Customer(Long.valueOf(10),"Petr", day, "PetrStreet1",
+        Customer customer1 = new Customer(10L,"Petr", day, "PetrStreet1",
                 "Petr@mail.null", "111111111");
         LocalDate day2 = LocalDate.of(2010, Month.APRIL, 10);
-        Customer customer2 = new Customer(Long.valueOf(20),"Honza", day, "HonzaStreet1",
+        Customer customer2 = new Customer(20L,"Honza", day, "HonzaStreet1",
                 "Honza@mail.null", "666666666");
 
         manager.createCustomer(customer1);
@@ -80,7 +66,10 @@ public class CustomerManagerImplTest {
 
         assertNull(manager.getCustomer(customer1.getId()));
         assertNotNull(manager.getCustomer(customer2.getId()));
+    }
 
+    @org.junit.Test
+    public void deleteNullCustomer() throws Exception {
         try{
             manager.deleteCustomer(null);
             fail();
@@ -91,17 +80,16 @@ public class CustomerManagerImplTest {
         }
     }
 
-
     @org.junit.Test
-    public void getAllCustomers(){
+    public void getAllCustomers() throws Exception{
 
         assertTrue(manager.getAllCustomers().isEmpty());
 
         LocalDate day = LocalDate.of(2014, Month.JANUARY, 1);
-        Customer customer1 = new Customer(Long.valueOf(10),"Petr", day, "PetrStreet1",
+        Customer customer1 = new Customer(10L,"Petr", day, "PetrStreet1",
                 "Petr@mail.null", "111111111");
         LocalDate day2 = LocalDate.of(2010, Month.APRIL, 10);
-        Customer customer2 = new Customer(Long.valueOf(20),"Honza", day, "HonzaStreet1",
+        Customer customer2 = new Customer(20L,"Honza", day, "HonzaStreet1",
                 "Honza@mail.null", "666666666");
 
         manager.createCustomer(customer1);
@@ -146,6 +134,9 @@ public class CustomerManagerImplTest {
         assertEquals(expected.getPhoneNumber(), actual.getPhoneNumber());
     }
 
+    /**
+     * Compares two customers by their ID.
+     */
     private static Comparator<Customer> idComparator = new Comparator<Customer>() {
 
         @Override
