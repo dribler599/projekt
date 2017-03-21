@@ -5,8 +5,8 @@ package cz.muni.fi;
  */
 public class MovieBuilder {
     private Long id = 123L;
-    private String name = "Ján Jakub";
-    private Integer year = 1999;
+    private String name = "Krstný otec";
+    private Integer year = 1972;
     private String classification = "18";
     private String description = "Nejaký popis, autori, žánre";
     private String location = "doma";
