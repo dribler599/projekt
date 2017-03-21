@@ -11,6 +11,7 @@ public interface CustomerManager {
      * Creates new customer.
      *
      * @param customer Customer to be created.
+     * @throws IllegalArgumentException when movie has invalid parameters or is null
      */
     void createCustomer(Customer customer);
 
@@ -19,6 +20,7 @@ public interface CustomerManager {
      *
      * @param id Customer's id.
      * @return Customer with given id.
+     * @throws IllegalArgumentException if id is invalid or null
      */
     Customer getCustomer(Long id);
 
@@ -26,6 +28,7 @@ public interface CustomerManager {
      * Updates customer.
      *
      * @param customer Customer to be updated.
+     * @throws IllegalArgumentException when movie has invalid parameters or is null
      */
     void updateCustomer(Customer customer);
 
@@ -33,6 +36,7 @@ public interface CustomerManager {
      *Deletes customer from database.
      *
      * @param customer Customer to be deleted.
+     * @throws IllegalArgumentException when movie is invalid or null
      */
     void deleteCustomer(Customer customer);
 
@@ -48,6 +52,7 @@ public interface CustomerManager {
      *
      * @param name Name of customer.
      * @return List of customers with given name.
+     * @throws IllegalArgumentException if 'name' is invalid or null
      */
     List<Customer> getCustomerByName(String name);
 }

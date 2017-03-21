@@ -6,6 +6,8 @@ import org.junit.Test;
 import java.time.LocalDate;
 import java.time.Month;
 
+import static java.time.Month.JANUARY;
+import static java.time.Month.OCTOBER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.*;
@@ -15,10 +17,14 @@ import static org.junit.Assert.*;
  */
 public class LeaseManagerImplTest {
     private LeaseManager manager;
+    private CustomerManagerImpl customerManager;
+    private MovieManagerImpl movieManager;
 
     @Before
     public void setUp() throws Exception {
         manager = new LeaseManagerImpl();
+        customerManager = new CustomerManagerImpl();
+        movieManager = new MovieManagerImpl();
     }
 
     @Test
@@ -162,11 +168,43 @@ public class LeaseManagerImplTest {
 
     @Test
     public void findLeaseByCustomer() throws Exception {
+        Customer customer1 = new CustomerBuilder().name("Pepa").build();
+        Customer customer2 = new CustomerBuilder().name("Honza").build();
+        customerManager.createCustomer(customer1);
+        customerManager.createCustomer(customer2);
 
+        assertThat(manager.findLeaseByCustomer(customer1))
+                .isEmpty();
+
+        Lease lease = new LeaseBuilder().withCustomer(customer1).build();
+        Lease lease2 = new LeaseBuilder().withCustomer(customer2).build();
+        manager.createLease(lease);
+        manager.createLease(lease2);
+
+        assertThat(manager.findLeaseByCustomer(customer1))
+                .usingFieldByFieldElementComparator()
+                .containsOnly(lease);
     }
 
     @Test
     public void findLeaseByMovie() throws Exception {
+
+        Movie movie1 = new MovieBuilder().withName("Best").build();
+        Movie movie2 = new MovieBuilder().withName("Movie").build();
+        movieManager.createMovie(movie1);
+        movieManager.createMovie(movie2);
+
+        assertThat(manager.findLeaseByMovie(movie1))
+                .isEmpty();
+
+        Lease lease = new LeaseBuilder().withMovie(movie1).build();
+        Lease lease2 = new LeaseBuilder().withMovie(movie2).build();
+        manager.createLease(lease);
+        manager.createLease(lease2);
+
+        assertThat(manager.findLeaseByMovie(movie1))
+                .usingFieldByFieldElementComparator()
+                .containsOnly(lease);
 
     }
 

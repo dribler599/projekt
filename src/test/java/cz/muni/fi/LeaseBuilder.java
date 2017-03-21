@@ -9,8 +9,7 @@ import java.time.Month;
 public class LeaseBuilder {
     private Long id = 100L;
     private Movie movie = new MovieBuilder().build();
-    private Customer customer = new Customer(10L,"Petr", LocalDate.of(2014, Month.JANUARY, 1),
-            "PetrStreet1","Petr@mail.null", "111111111");
+    private Customer customer = new CustomerBuilder().build();
     private Integer price = 1000;
     private LocalDate dateOfRent = LocalDate.of(2000, Month.JANUARY, 1);
     private LocalDate dateOfReturn = LocalDate.of(2000, Month.JANUARY, 30);
