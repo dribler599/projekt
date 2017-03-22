@@ -1,157 +1,128 @@
 package cz.muni.fi;
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static java.time.Month.JANUARY;
+import static java.time.Month.OCTOBER;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for class CustomerManagerImpl.
  */
 public class CustomerManagerImplTest {
 
-    private CustomerManagerImpl manager;
+    private CustomerManager manager;
 
-    @org.junit.Before
+    @Before
     public void setUp() throws Exception {
-        CustomerManagerImpl manager = new CustomerManagerImpl();
+        manager = new CustomerManagerImpl();
     }
 
-    @org.junit.Test
+    private CustomerBuilder customer1() {
+        return new CustomerBuilder()
+                .name("Honza")
+                .dateOfBirth(2000,OCTOBER,20)
+                .address("HonzaStreet1")
+                .email("Honza@mail.null")
+                .phoneNumber("666666666");
+    }
+
+    private CustomerBuilder customer2() {
+        return new CustomerBuilder()
+                .name("Petr")
+                .dateOfBirth(1995,JANUARY,13)
+                .address("PetrStreet1")
+                .email("Petr@mail.null")
+                .phoneNumber("111111111");
+    }
+
+    @Test
     public void createCustomer(){
-
-        LocalDate day = LocalDate.of(2014, Month.JANUARY, 1);
-        Customer customer = new Customer(Long.valueOf(20),"Honza", day, "HonzaStreet1",
-                "Honza@mail.null", "666666666");
-
+        Customer customer = customer1().build();
         manager.createCustomer(customer);
 
         Long customerID = customer.getId();
-        assertThat("Customer has null ID.", customer.getId(), is(not(equalTo(null))));
+        assertThat(customerID).isNotNull();
 
-        Customer result = manager.getCustomer(customerID);
-        assertThat("Acquired customer differs from the testing one", result, is(equalTo(customer)));
-        assertThat("Acquired customer is the same instance.", result, is(not(sameInstance(customer))));
-        assertDeepEquals(customer, result);
-
-        //customer is null
-        try{
-            manager.createCustomer(null);
-            fail();
-        }catch (NullPointerException ex){
-            // OK
-        }catch (Exception ex){
-            fail();
-        }
-
-        //same id
-        try{
-            manager.createCustomer(new Customer(Long.valueOf(20),"Honza", day, "HonzaStreet1",
-                    "Honza@mail.null", "666666666"));
-            fail();
-        }catch(IllegalArgumentException ex){
-            // OK
-        }catch(Exception ex){
-            fail();
-        }
+        assertThat(manager.getCustomer(customerID))
+                .isNotSameAs(customer)
+                .isEqualToComparingFieldByField(customer);
     }
 
-    @org.junit.Test
-    public void deleteCustomer() {
-        LocalDate day = LocalDate.of(2014, Month.JANUARY, 1);
-        Customer customer1 = new Customer(Long.valueOf(10),"Petr", day, "PetrStreet1",
-                "Petr@mail.null", "111111111");
-        LocalDate day2 = LocalDate.of(2010, Month.APRIL, 10);
-        Customer customer2 = new Customer(Long.valueOf(20),"Honza", day, "HonzaStreet1",
-                "Honza@mail.null", "666666666");
+    @Test(expected = IllegalArgumentException.class)
+    public void createNullCustomer() {
+        manager.createCustomer(null);
+    }
 
+    @Test
+    public void deleteCustomer(){
+        Customer customer1 = customer1().build();
+        Customer customer2 = customer2().build();
         manager.createCustomer(customer1);
         manager.createCustomer(customer2);
 
-        assertNotNull(manager.getCustomer(customer1.getId()));
-        assertNotNull(manager.getCustomer(customer2.getId()));
+
+        assertThat(manager.getCustomer(customer1.getId())).isNotNull();
+        assertThat(manager.getCustomer(customer2.getId())).isNotNull();
 
         manager.deleteCustomer(customer1);
 
-        assertNull(manager.getCustomer(customer1.getId()));
-        assertNotNull(manager.getCustomer(customer2.getId()));
+        assertThat(manager.getCustomer(customer1.getId())).isNull();
+        assertThat(manager.getCustomer(customer2.getId())).isNotNull();
+    }
 
-        try{
-            manager.deleteCustomer(null);
-            fail();
-        }catch (NullPointerException ex){
-            // OK
-        }catch (Exception ex){
-            fail();
-        }
+    @Test(expected = IllegalArgumentException.class)
+    public void deleteNullCustomer() {
+        manager.deleteCustomer(null);
+    }
+
+    @Test
+    public void updateCustomerName() {
+        Customer customer1 = customer1().build();
+        Customer customer2 = customer2().build();
+        manager.createCustomer(customer1);
+        manager.createCustomer(customer2);
+
+        customer1.setName("Pepa");
+        manager.updateCustomer(customer1);
+
+        assertThat(manager.getCustomer(customer1.getId()))
+                .isEqualToComparingFieldByField(customer1);
+
+        assertThat(manager.getCustomer(customer2.getId()))
+                .isEqualToComparingFieldByField(customer2);
     }
 
 
-    @org.junit.Test
+    @Test(expected = IllegalArgumentException.class)
+    public void updateNullCustomer() {
+        manager.updateCustomer(null);
+    }
+
+    @Test
     public void getAllCustomers(){
 
-        assertTrue(manager.getAllCustomers().isEmpty());
+        assertThat(manager.getAllCustomers()).isEmpty();
 
-        LocalDate day = LocalDate.of(2014, Month.JANUARY, 1);
-        Customer customer1 = new Customer(Long.valueOf(10),"Petr", day, "PetrStreet1",
-                "Petr@mail.null", "111111111");
-        LocalDate day2 = LocalDate.of(2010, Month.APRIL, 10);
-        Customer customer2 = new Customer(Long.valueOf(20),"Honza", day, "HonzaStreet1",
-                "Honza@mail.null", "666666666");
+        Customer customer1 = customer1().build();
+        Customer customer2 = customer2().build();
 
         manager.createCustomer(customer1);
         manager.createCustomer(customer2);
 
-        List<Customer> expected = Arrays.asList(customer1, customer2);
-        List<Customer> actual = manager.getAllCustomers();
-
-        Collections.sort(actual, idComparator);
-        Collections.sort(expected, idComparator);
-
-        assertEquals(expected, actual);
-        assertDeepEquals(expected, actual);
+        assertThat(manager.getAllCustomers())
+                .usingFieldByFieldElementComparator()
+                .containsOnly(customer1,customer2);
     }
 
-    /**
-     * Compares lists of customers.
-     *
-     * @param expectedList List to be compared with.
-     * @param actualList List to be compared.
-     */
-    private void assertDeepEquals(List<Customer> expectedList, List<Customer> actualList) {
-        for (int i = 0; i < expectedList.size(); i++) {
-            Customer expected = expectedList.get(i);
-            Customer actual = actualList.get(i);
-            assertDeepEquals(expected, actual);
-        }
+    @Test
+    public void getMovieByName(){
+        Customer customer1 = customer1().build();
+        Customer customer2 = customer2().build();
+        manager.createCustomer(customer1);
+        manager.createCustomer(customer2);
+
+        assertThat(manager.getCustomerByName("Honza")).containsOnly(customer1);
     }
-
-    /**
-     * Compares atributes of customer.
-     *
-     * @param expected Customer to be compared with.
-     * @param actual Customer to be compared.
-     */
-    private void assertDeepEquals(Customer expected, Customer actual) {
-        assertEquals(expected.getId(), actual.getId());
-        assertEquals(expected.getName(), actual.getName());
-        assertEquals(expected.getEmail(), actual.getEmail());
-        assertEquals(expected.getAddress(), actual.getAddress());
-        assertEquals(expected.getDateOfBirth(), actual.getDateOfBirth());
-        assertEquals(expected.getPhoneNumber(), actual.getPhoneNumber());
-    }
-
-    private static Comparator<Customer> idComparator = new Comparator<Customer>() {
-
-        @Override
-        public int compare(Customer o1, Customer o2) {
-            return o1.getId().compareTo(o2.getId());
-        }
-
-    };
 }
