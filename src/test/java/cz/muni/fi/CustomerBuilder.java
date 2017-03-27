@@ -9,11 +9,11 @@ import java.time.Month;
 public class CustomerBuilder {
 
     private Long id;
-    private String name;
-    private LocalDate dateOfBirth;
-    private String address;
-    private String email;
-    private String phoneNumber;
+    private String name = "Honza";
+    private LocalDate dateOfBirth = LocalDate.of(2000,Month.OCTOBER,20);
+    private String address = "Honza Street 1";
+    private String email = "honza@mail.com";
+    private String phoneNumber = "666666666";
 
     public CustomerBuilder id (Long id) {
         this.id = id;

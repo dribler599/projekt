@@ -4,7 +4,7 @@ package cz.muni.fi;
  * Builder of movies for tests
  */
 public class MovieBuilder {
-    private Long id = 123L;
+    private Long id;
     private String name = "Krstný otec";
     private Integer year = 1972;
     private String classification = "18";

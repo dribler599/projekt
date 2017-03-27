@@ -11,6 +11,19 @@ public class Movie {
     private String description;
     private String location;
 
+    public Movie(Long nid, String name, int year, String classification, String description, String location) {
+        this.id = nid;
+        this.name = name;
+        this.year = year;
+        this.classification = classification;
+        this.description = description;
+        this.location = location;
+    }
+
+    public Movie() {
+
+    }
+
     public Long getId() {
         return id;
     }

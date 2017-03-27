@@ -1,11 +1,35 @@
 package cz.muni.fi;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
 import java.util.List;
 
 /**
  * Class implementing LeaseManager
  */
 public class LeaseManagerImpl implements LeaseManager {
+
+    final static Logger log = LoggerFactory.getLogger(LeaseManagerImpl.class);
+
+    private JdbcTemplate jdbc;
+    private MovieManager movieManager;
+    private CustomerManager customerManager;
+
+    public LeaseManagerImpl(DataSource dataSource) {
+        jdbc = new JdbcTemplate(dataSource);
+    }
+
+    public void setBookManager(MovieManager movieManager) {
+        this.movieManager = movieManager;
+    }
+
+    public void setCustomerManager(CustomerManager customerManager) {
+        this.customerManager = customerManager;
+    }
+
     @Override
     public void createLease(Lease lease) {
         throw new UnsupportedOperationException("Not supported yet.");

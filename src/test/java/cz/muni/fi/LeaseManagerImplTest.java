@@ -1,16 +1,13 @@
 package cz.muni.fi;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDate;
 import java.time.Month;
 
-import static java.time.Month.JANUARY;
-import static java.time.Month.OCTOBER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * Test class for LeaseManagerImpl
@@ -20,12 +17,6 @@ public class LeaseManagerImplTest {
     private CustomerManagerImpl customerManager;
     private MovieManagerImpl movieManager;
 
-    @Before
-    public void setUp() throws Exception {
-        manager = new LeaseManagerImpl();
-        customerManager = new CustomerManagerImpl();
-        movieManager = new MovieManagerImpl();
-    }
 
     @Test
     public void createLease() throws Exception {
@@ -51,20 +42,15 @@ public class LeaseManagerImplTest {
     }
 
     @Test
-    public void addLeaseWithWrongParameters() throws Exception {
-        try {
+    public void addLeaseWithNullLease() throws Exception {
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
             manager.createLease(null);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
+        });
+    }
 
+    @Test
+    public void addLeaseWithNullParameters() throws Exception {
         Lease lease = new LeaseBuilder().withId(1L).build();
-        try {
-            manager.createLease(lease);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-
         lease = new LeaseBuilder().withMovie(null).build();
         try {
             manager.createLease(lease);
@@ -94,6 +80,16 @@ public class LeaseManagerImplTest {
         }
 
         lease = new LeaseBuilder().withExpectedDateOfReturn(null).build();
+        try {
+            manager.createLease(lease);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+    }
+
+    @Test
+    public void addLeaseWithWrongParameters() throws Exception {
+        Lease lease = new LeaseBuilder().withId(1L).build();
         try {
             manager.createLease(lease);
             fail();
@@ -147,27 +143,17 @@ public class LeaseManagerImplTest {
     }
 
     @Test
-    public void updateLeaseWithWrongParameters() {
-        Lease lease = new LeaseBuilder().build();
-        Lease lease2 = new LeaseBuilder().build();
-        manager.createLease(lease);
-        manager.createLease(lease2);
-        Long leaseId = lease.getId();
-        Long lease2Id = lease2.getId();
-
-        try {
+    public void updateLeaseWithNullLease() {
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
             manager.updateLease(null);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
+        });
+    }
 
-        try {
-            lease = manager.getLease(leaseId);
-            lease.setId(-1L);
-            manager.updateLease(lease);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
+    @Test
+    public void updateLeaseWithNullParameters() {
+        Lease lease = new LeaseBuilder().build();
+        manager.createLease(lease);
+        Long leaseId = lease.getId();
 
         try {
             lease = manager.getLease(leaseId);
@@ -188,6 +174,21 @@ public class LeaseManagerImplTest {
         try {
             lease = manager.getLease(leaseId);
             lease.setCustomer(null);
+            manager.updateLease(lease);
+            fail();
+        } catch (IllegalArgumentException e) {
+        }
+    }
+
+    @Test
+    public void updateLeaseWithWrongParameters() {
+        Lease lease = new LeaseBuilder().build();
+        manager.createLease(lease);
+        Long leaseId = lease.getId();
+
+        try {
+            lease = manager.getLease(leaseId);
+            lease.setId(-1L);
             manager.updateLease(lease);
             fail();
         } catch (IllegalArgumentException e) {
@@ -217,15 +218,16 @@ public class LeaseManagerImplTest {
     }
 
     @Test
+    public void deleteLeaseWithNullLease() throws Exception {
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
+            manager.deleteLease(null);
+        });
+    }
+
+    @Test
     public void deleteLeaseWithWrongParameters() throws Exception {
         Lease lease = new LeaseBuilder().build();
         manager.createLease(lease);
-
-        try {
-            manager.deleteLease(null);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
 
         try {
             lease.setId(null);

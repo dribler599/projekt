@@ -14,11 +14,6 @@ public class CustomerManagerImplTest {
 
     private CustomerManager manager;
 
-    @Before
-    public void setUp() throws Exception {
-        manager = new CustomerManagerImpl();
-    }
-
     private CustomerBuilder customer1() {
         return new CustomerBuilder()
                 .name("Honza")
