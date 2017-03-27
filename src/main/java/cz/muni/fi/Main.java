@@ -22,7 +22,7 @@ public class Main {
         BasicDataSource bds = new BasicDataSource();
 
         bds.setDriverClassName(EmbeddedDriver.class.getName());
-        bds.setUrl("jdbc:derby:memory:booksDB;create=true");
+        bds.setUrl("jdbc:derby:memory:movieDB;create=true");
 
         new ResourceDatabasePopulator(
                 new ClassPathResource("schema-javadb.sql"),
@@ -36,10 +36,10 @@ public class Main {
         log.info("Start");
 
         DataSource dataSource = createMemoryDatabase();
-        MovieManager bookManager = new MovieManagerImpl(dataSource);
+        MovieManager moveManager = new MovieManagerImpl(dataSource);
 
-        List<Movie> allBooks = bookManager.getAllMovies();
-        System.out.println("allBooks = " + allBooks);
+        List<Movie> allMovies = moveManager.getAllMovies();
+        System.out.println("allMovies = " + allMovies);
 
     }
 

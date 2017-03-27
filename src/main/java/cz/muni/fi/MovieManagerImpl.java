@@ -39,10 +39,10 @@ public class MovieManagerImpl implements MovieManager {
                 if (keys.next()) {
                     movie.setId(keys.getLong(1));
                 }
-                log.debug("created book {}",movie);
+                log.debug("created movie {}",movie);
             }
         } catch (SQLException e) {
-            log.error("cannot insert book", e);
+            log.error("cannot insert movie", e);
             throw new MovieException("database insert failed", e);
         }
     }
@@ -66,7 +66,7 @@ public class MovieManagerImpl implements MovieManager {
                 }
             }
         } catch (SQLException e) {
-            log.error("cannot select books", e);
+            log.error("cannot select movie", e);
             throw new MovieException("database select failed", e);
         }
     }
@@ -84,15 +84,15 @@ public class MovieManagerImpl implements MovieManager {
                 st.setLong(6, movie.getId());
                 int n = st.executeUpdate();
                 if (n == 0) {
-                    throw new MovieException("not updated book with id " + movie.getId(), null);
+                    throw new MovieException("not updated movie with id " + movie.getId(), null);
                 }
                 if (n > 1) {
-                    throw new MovieException("more than 1 book with id " + movie.getId(), null);
+                    throw new MovieException("more than 1 movie with id " + movie.getId(), null);
                 }
-                log.debug("updated book {}", movie);
+                log.debug("updated movie {}", movie);
             }
         } catch (SQLException e) {
-            log.error("cannot update books", e);
+            log.error("cannot update movie", e);
             throw new MovieException("database update failed", e);
         }
     }
@@ -105,12 +105,12 @@ public class MovieManagerImpl implements MovieManager {
                 st.setLong(1, id);
                 int n = st.executeUpdate();
                 if (n == 0) {
-                    throw new MovieException("not deleted book with id " + id, null);
+                    throw new MovieException("not deleted movie with id " + id, null);
                 }
-                log.debug("deleted book {}",id);
+                log.debug("deleted movie {}",id);
             }
         } catch (SQLException e) {
-            log.error("cannot delete book", e);
+            log.error("cannot delete movie", e);
             throw new MovieException("database delete failed", e);
         }
     }
@@ -118,9 +118,9 @@ public class MovieManagerImpl implements MovieManager {
     @Override
     public List<Movie> getAllMovies() throws MovieException{
         try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement st = con.prepareStatement("select * from books")) {
+            try (PreparedStatement st = con.prepareStatement("select * from movie")) {
                 ResultSet rs = st.executeQuery();
-                List<Movie> books = new ArrayList<>();
+                List<Movie> movie = new ArrayList<>();
                     while (rs.next()) {
                     Long id = rs.getLong("id");
                     String name = rs.getString("name");
@@ -128,13 +128,13 @@ public class MovieManagerImpl implements MovieManager {
                     String classification = rs.getString("classification");
                     String description = rs.getString("description");
                     String location = rs.getString("location");
-                    books.add(new Movie(id, name, year, classification, description, location));
+                    movie.add(new Movie(id, name, year, classification, description, location));
                 }
-                log.debug("getting all {} books",books.size());
-                return books;
+                log.debug("getting all {} movie",movie.size());
+                return movie;
             }
         } catch (SQLException e) {
-            log.error("cannot select books", e);
+            log.error("cannot select movie", e);
             throw new MovieException("database select failed", e);
         }
     }
