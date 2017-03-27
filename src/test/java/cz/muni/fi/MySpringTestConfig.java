@@ -46,7 +46,7 @@ public class MySpringTestConfig {
     @Bean
     public LeaseManager leaseManager() {
         LeaseManagerImpl leaseManager = new LeaseManagerImpl(dataSource());
-        leaseManager.setBookManager(movieManager());
+        leaseManager.setMovieManager(movieManager());
         leaseManager.setCustomerManager(customerManager());
         return leaseManager;
     }

@@ -22,7 +22,7 @@ public class LeaseManagerImpl implements LeaseManager {
         jdbc = new JdbcTemplate(dataSource);
     }
 
-    public void setBookManager(MovieManager movieManager) {
+    public void setMovieManager(MovieManager movieManager) {
         this.movieManager = movieManager;
     }
 
