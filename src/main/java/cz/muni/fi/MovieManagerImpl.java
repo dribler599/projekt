@@ -8,12 +8,6 @@ import javax.sql.DataSource;
  */
 public class MovieManagerImpl implements MovieManager {
 
-    private final DataSource dataSource;
-
-    public MovieManagerImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
     @Override
     public void createMovie(Movie movie) {
         throw new UnsupportedOperationException("Not supported yet.");
