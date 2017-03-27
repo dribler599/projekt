@@ -14,11 +14,6 @@ import static org.assertj.core.api.Assertions.*;
 public class MovieManagerImplTest {
     private MovieManager manager;
 
-    @Before
-    public void setUp() throws Exception {
-        manager = new MovieManagerImpl();
-    }
-
     @Test
     public void createMovie() throws Exception {
         Movie movie = new MovieBuilder().build();

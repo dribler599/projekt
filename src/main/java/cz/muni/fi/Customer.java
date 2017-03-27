@@ -13,6 +13,18 @@ public class Customer {
     private String email;
     private String phoneNumber;
 
+    public Customer() {
+    }
+
+    public Customer(Long id, String name, LocalDate dateOfBirth, String address, String email, String phoneNumber) {
+        this.id = id;
+        this.name = name;
+        this.dateOfBirth = dateOfBirth;
+        this.address = address;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
     public Long getId() {
         return id;
     }

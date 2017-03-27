@@ -1,16 +1,13 @@
 package cz.muni.fi;
 
-import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDate;
 import java.time.Month;
 
-import static java.time.Month.JANUARY;
-import static java.time.Month.OCTOBER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 /**
  * Test class for LeaseManagerImpl
@@ -20,12 +17,6 @@ public class LeaseManagerImplTest {
     private CustomerManagerImpl customerManager;
     private MovieManagerImpl movieManager;
 
-    @Before
-    public void setUp() throws Exception {
-        manager = new LeaseManagerImpl();
-        customerManager = new CustomerManagerImpl();
-        movieManager = new MovieManagerImpl();
-    }
 
     @Test
     public void createLease() throws Exception {

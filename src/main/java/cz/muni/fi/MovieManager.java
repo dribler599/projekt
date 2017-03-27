@@ -13,7 +13,7 @@ public interface MovieManager {
      * @param movie of type Movie
      * @throws IllegalArgumentException when movie has invalid parameters or is null
      */
-    void createMovie(Movie movie);
+    void createMovie(Movie movie) throws MovieException;
 
     /**
      * Gets movie by its id
@@ -22,7 +22,7 @@ public interface MovieManager {
      * @return movie of type Movie or null if movie doesn't exist
      * @throws IllegalArgumentException if id is invalid or null
      */
-    Movie getMovie(Long id);
+    Movie getMovie(Long id) throws MovieException;
 
     /**
      * Updates 'movie' in database.
@@ -30,7 +30,7 @@ public interface MovieManager {
      * @param movie of type Movie
      * @throws IllegalArgumentException when movie has invalid parameters or is null
      */
-    void updateMovie(Movie movie);
+    void updateMovie(Movie movie) throws MovieException;
 
     /**
      * Deletes 'movie' in database.
@@ -38,14 +38,14 @@ public interface MovieManager {
      * @param movie of type Movie
      * @throws IllegalArgumentException when movie is invalid or null
      */
-    void deleteMovie(Movie movie);
+    void deleteMovie(Movie movie) throws MovieException;
 
     /**
      * Gets all movies.
      *
      * @return all movies in form of List<Movie>
      */
-    List<Movie> getAllMovies();
+    List<Movie> getAllMovies() throws MovieException;
 
     /**
      * Gets movies by their name
