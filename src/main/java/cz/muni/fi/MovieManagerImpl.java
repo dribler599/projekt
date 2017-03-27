@@ -1,11 +1,18 @@
 package cz.muni.fi;
 
 import java.util.List;
+import javax.sql.DataSource;
 
 /**
  * Class implementing MovieManager
  */
 public class MovieManagerImpl implements MovieManager {
+
+    private final DataSource dataSource;
+
+    public MovieManagerImpl(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Override
     public void createMovie(Movie movie) {
