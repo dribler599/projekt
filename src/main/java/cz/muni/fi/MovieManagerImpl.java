@@ -26,7 +26,7 @@ public class MovieManagerImpl implements MovieManager {
     @Override
     public void createMovie(Movie movie) throws MovieException{
         try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement st = con.prepareStatement("insert into movie (name, year, classification, description, location)" +
+            try (PreparedStatement st = con.prepareStatement("INSERT INTO MOVIE (NAME, YEAR, CLASSIFICATION, DESCRIPTION, LOCATION)" +
                     " values (?,?,?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS)) {
                 st.setString(1, movie.getName());
                 st.setInt(2, movie.getYear());
@@ -49,16 +49,16 @@ public class MovieManagerImpl implements MovieManager {
     @Override
     public Movie getMovie(Long id) throws MovieException{
         try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement st = con.prepareStatement("select * from movie where id = ?")) {
+            try (PreparedStatement st = con.prepareStatement("SELECT * FROM MOVIE WHERE ID = ?")) {
                 st.setLong(1, id);
                 ResultSet rs = st.executeQuery();
                 if (rs.next()) {
-                    Long nid = rs.getLong("id");
-                    String name = rs.getString("name");
-                    int year = rs.getInt("year");
-                    String classification = rs.getString("classification");
-                    String description = rs.getString("description");
-                    String location = rs.getString("location");
+                    Long nid = rs.getLong("ID");
+                    String name = rs.getString("NAME");
+                    int year = rs.getInt("YEAR");
+                    String classification = rs.getString("CLASSIFICATION");
+                    String description = rs.getString("DESCRIPTION");
+                    String location = rs.getString("LOCATION");
                     return new Movie(nid, name, year, classification, description, location);
                 } else {
                     return null;
@@ -73,8 +73,8 @@ public class MovieManagerImpl implements MovieManager {
     @Override
     public void updateMovie(Movie movie) throws MovieException {
         try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement st = con.prepareStatement("update movie set name=?, year=?, " +
-                    "classification=?, description=?, location=? where id=?")) {
+            try (PreparedStatement st = con.prepareStatement("UPDATE MOVIE SET NAME = ?, YEAR = ?, " +
+                    "CLASSIFICATION = ?, DESCRIPTION = ?, LOCATION = ? WHERE ID = ?")) {
                 st.setString(1, movie.getName());
                 st.setInt(2, movie.getYear());
                 st.setString(3, movie.getClassification());
@@ -100,7 +100,7 @@ public class MovieManagerImpl implements MovieManager {
     public void deleteMovie(Movie movie) throws MovieException{
         long id = movie.getId();
         try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement st = con.prepareStatement("delete from movie where id=?")) {
+            try (PreparedStatement st = con.prepareStatement("DELETE FROM MOVIE WHERE ID = ?")) {
                 st.setLong(1, id);
                 int n = st.executeUpdate();
                 if (n == 0) {
@@ -115,31 +115,75 @@ public class MovieManagerImpl implements MovieManager {
     }
 
     @Override
-    public List<Movie> getAllMovies() throws MovieException{
-        try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement st = con.prepareStatement("select * from movie")) {
-                ResultSet rs = st.executeQuery();
-                List<Movie> movie = new ArrayList<>();
-                    while (rs.next()) {
-                    Long id = rs.getLong("id");
-                    String name = rs.getString("name");
-                    int year = rs.getInt("year");
-                    String classification = rs.getString("classification");
-                    String description = rs.getString("description");
-                    String location = rs.getString("location");
-                    movie.add(new Movie(id, name, year, classification, description, location));
-                }
-                log.debug("getting all {} movie",movie.size());
-                return movie;
+    public List<Movie> getAllMovies(){
+        String sql = "SELECT * FROM MOVIE";
+        Connection conn = null;
+
+        try {
+            conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            List<Movie> movies = new ArrayList<>();
+            while (rs.next()) {
+                String classification = rs.getString("CLASSIFICATION");
+                String description = rs.getString("DESCRIPTION");
+                String location = rs.getString("LOCATION");
+                Long id = rs.getLong("ID");
+                String name = rs.getString("NAME");
+                int year = rs.getInt("YEAR");
+
+                movies.add(new Movie(id, name, year, classification, description, location));
             }
+            log.debug("getting all {} movies", movies.size());
+            return movies;
+
         } catch (SQLException e) {
-            log.error("cannot select movie", e);
-            throw new MovieException("database select failed", e);
+            log.error("cannot select movies", e);
+            throw new RuntimeException(e);
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {}
+            }
         }
     }
 
     @Override
-    public List<Movie> getMovieByName(String name) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public List<Movie> getMovieByName(String n) {
+        String sql = "SELECT * FROM MOVIE WHERE NAME = ?";
+        Connection conn = null;
+
+        try {
+            conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, n);
+            ResultSet rs = ps.executeQuery();
+            List<Movie> movies = new ArrayList<>();
+            while (rs.next()) {
+                Long id = rs.getLong("ID");
+                String name = rs.getString("NAME");
+                int year = rs.getInt("YEAR");
+                String classification = rs.getString("CLASSIFICATION");
+                String description = rs.getString("DESCRIPTION");
+                String location = rs.getString("LOCATION");
+
+                movies.add(new Movie(id, name, year, classification, description, location));
+            }
+            log.debug("getting all {} movies", movies.size());
+            return movies;
+
+        } catch (SQLException e) {
+            log.error("cannot select movies", e);
+            throw new RuntimeException(e);
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {}
+            }
+        }
     }
 }
