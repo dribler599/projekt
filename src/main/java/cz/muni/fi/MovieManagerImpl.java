@@ -27,7 +27,7 @@ public class MovieManagerImpl implements MovieManager {
     @Override
     public void createMovie(Movie movie) throws MovieException{
         try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement st = con.prepareStatement("INSERT INTO MOVIE (NAME, YEAR, CLASSIFICATION, DESCRIPTION, LOCATION)" +
+            try (PreparedStatement st = con.prepareStatement("INSERT INTO MOVIE (NAME, \"YEAR\", CLASSIFICATION, DESCRIPTION, LOCATION)" +
                     " values (?,?,?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS)) {
                 st.setString(1, movie.getName());
                 st.setInt(2, movie.getYear());

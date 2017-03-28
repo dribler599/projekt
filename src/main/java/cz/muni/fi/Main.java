@@ -5,42 +5,28 @@ package cz.muni.fi;
  */
 
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.apache.derby.jdbc.EmbeddedDriver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 
-import javax.sql.DataSource;
+import java.io.IOException;
 import java.util.List;
+import java.util.Properties;
 
 public class Main {
 
-    final static Logger log = LoggerFactory.getLogger(Main.class);
+    public static void main(String[] args) throws MovieException, IOException {
 
-    public static DataSource createMemoryDatabase() {
-        BasicDataSource bds = new BasicDataSource();
+        Properties myconf = new Properties();
+        myconf.load(Main.class.getResourceAsStream("/myconf.properties"));
 
-        bds.setDriverClassName(EmbeddedDriver.class.getName());
-        bds.setUrl("jdbc:derby:memory:movieDB;create=true");
+        BasicDataSource ds = new BasicDataSource();
+        ds.setUrl(myconf.getProperty("jdbc.url"));
+        ds.setUsername(myconf.getProperty("jdbc.user"));
+        ds.setPassword(myconf.getProperty("jdbc.password"));
 
-        new ResourceDatabasePopulator(
-                new ClassPathResource("schema-javadb.sql"),
-                new ClassPathResource("test-data.sql"))
-                .execute(bds);
-        return bds;
-    }
+        MovieManager movieManager = new MovieManagerImpl(ds);
+        movieManager.createMovie(new Movie(null, "Tomáš", 1980, null, null, null));
 
-    public static void main(String[] args) throws MovieException {
-
-        log.info("Start");
-
-        DataSource dataSource = createMemoryDatabase();
-        MovieManager moveManager = new MovieManagerImpl(dataSource);
-
-        List<Movie> allMovies = moveManager.getAllMovies();
-        System.out.println("allMovies = " + allMovies);
+        List<Movie> allMovies = movieManager.getAllMovies();
+        allMovies.forEach(System.out::println);
 
     }
-
 }
