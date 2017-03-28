@@ -1,30 +1,30 @@
   -- schema-psql.sql
   -- DDL commands for PostgreSQL
-  DROP TABLE IF EXISTS lease;
-  DROP TABLE IF EXISTS customer;
-  DROP TABLE IF EXISTS movie;
+  DROP TABLE IF EXISTS LEASE;
+  DROP TABLE IF EXISTS CUSTOMER;
+  DROP TABLE IF EXISTS MOVIE;
 
- CREATE TABLE movie (
-   id             SERIAL PRIMARY KEY,
-   name           VARCHAR,
-   year           INT,
-   classification VARCHAR,
-   description    VARCHAR,
-   location       VARCHAR);
+ CREATE TABLE MOVIE (
+   ID             SERIAL PRIMARY KEY,
+   NAME           VARCHAR,
+   YEAR           INT,
+   CLASSIFICATION VARCHAR,
+   DESCRIPTION    VARCHAR,
+   LOCATION       VARCHAR);
 
- CREATE TABLE customer (
-   id          SERIAL PRIMARY KEY,
-   name        VARCHAR,
-   dateOfBirth DATE,
-   address     VARCHAR,
-   email       VARCHAR,
-   phoneNumber VARCHAR);
+ CREATE TABLE CUSTOMER (
+   ID          SERIAL PRIMARY KEY,
+   NAME        VARCHAR,
+   DATEOFBIRTH DATE,
+   ADDRESS     VARCHAR,
+   EMAIL       VARCHAR,
+   PHONENUMBER VARCHAR);
 
- CREATE TABLE lease (
-   id                   SERIAL PRIMARY KEY,
-   movieId              INT REFERENCES movie (id) ON DELETE CASCADE ON UPDATE CASCADE,
-   customerId           INT REFERENCES customer (id) ON DELETE CASCADE ON UPDATE CASCADE,
-   price                INT,
-   dateOfRent           DATE,
-   expectedDateOfReturn DATE,
-   dateOfReturn         DATE);
+ CREATE TABLE LEASE (
+   LEASEID              SERIAL PRIMARY KEY,
+   MOVIEID              INT REFERENCES MOVIE (ID) ON DELETE CASCADE ON UPDATE CASCADE,
+   CUSTOMERID           INT REFERENCES CUSTOMER (ID) ON DELETE CASCADE ON UPDATE CASCADE,
+   PRICE                INT,
+   DATEOFRENT           DATE,
+   EXPECTEDDATEOFRETURN DATE,
+   DATEOFRETURN         DATE);

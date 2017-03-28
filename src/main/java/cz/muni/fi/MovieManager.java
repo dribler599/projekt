@@ -45,7 +45,7 @@ public interface MovieManager {
      *
      * @return all movies in form of List<Movie>
      */
-    List<Movie> getAllMovies() throws MovieException;
+    List<Movie> getAllMovies();
 
     /**
      * Gets movies by their name

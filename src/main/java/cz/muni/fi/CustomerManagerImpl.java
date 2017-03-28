@@ -1,88 +1,232 @@
 package cz.muni.fi;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.*;
 
 /**
  * Implementation of CustomerManager.
  */
 public class CustomerManagerImpl implements CustomerManager {
 
-    private JdbcTemplate jdbc;
-    private TransactionTemplate transaction;
+    private final DataSource dataSource;
+    final static Logger log = LoggerFactory.getLogger(CustomerManagerImpl.class);
 
-    public CustomerManagerImpl(DataSource dataSource) {
-        this.jdbc = new JdbcTemplate(dataSource);
-        this.transaction = new TransactionTemplate(new DataSourceTransactionManager(dataSource));
+    public CustomerManagerImpl (DataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
-    public void createCustomer(Customer c) {
-        SimpleJdbcInsert insertCustomer = new SimpleJdbcInsert(jdbc).withTableName("customer").usingGeneratedKeyColumns("id");
-        Map<String, Object> parameters = new HashMap<>(2);
-        parameters.put("name", c.getName());
-        parameters.put("dateOfBirth", c.getDateOfBirth());
-        parameters.put("address", c.getAddress());
-        parameters.put("email", c.getEmail());
-        parameters.put("phoneNumber", c.getPhoneNumber());
-        Number id = insertCustomer.executeAndReturnKey(parameters);
-        c.setId(id.longValue());
-    }
+    public void createCustomer(Customer customer) {
+        String sql = "INSERT INTO CUSTOMER " +
+                "(NAME, DATEOFBIRTH, ADDRESS, EMAIL, PHONENUMBER) VALUES (?, ?, ?, ?, ?)";
+        Connection conn = null;
 
-    private RowMapper<Customer> customerMapper = new RowMapper<Customer>() {
-        @Override
-        public Customer mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Customer(rs.getLong("id"), rs.getString("name"), rs.getDate("dateOfBirth").toLocalDate(),
-                    rs.getString("address"), rs.getString("email"), rs.getString("phoneNumber"));
+        try {
+            conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, customer.getName());
+            ps.setDate(2, Date.valueOf(customer.getDateOfBirth()));
+            ps.setString(3, customer.getAddress());
+            ps.setString(4,customer.getEmail());
+            ps.setString(5,customer.getPhoneNumber());
+            ps.executeUpdate();
+            ResultSet keys = ps.getGeneratedKeys();
+            if (keys.next()) {
+                customer.setId(keys.getLong(1));
+            }
+            log.debug("created book {}",customer);
+            ps.close();
+
+        } catch (SQLException e) {
+            log.error("cannot insert customer", e);
+            throw new RuntimeException(e);
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {}
+            }
         }
-    };
+    }
 
     @Override
     public Customer getCustomer(Long id) {
-        return jdbc.queryForObject("SELECT * FROM customer WHERE id=?", customerMapper, id);
+        String sql = "SELECT * FROM CUSTOMER WHERE ID = ?";
+        Connection conn = null;
+
+        try {
+            conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setLong(1, id);
+            Customer customer = null;
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                customer = new Customer(
+                        rs.getLong("ID"),
+                        rs.getString("NAME"),
+                        rs.getDate("DATEOFBIRTH").toLocalDate(),
+                        rs.getString("ADDRESS"),
+                        rs.getString("EMAIL"),
+                        rs.getString("PHONENUMBER")
+                );
+            }
+            rs.close();
+            ps.close();
+            return customer;
+        } catch (SQLException e) {
+            log.error("cannot get customer", e);
+            throw new RuntimeException(e);
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {}
+            }
+        }
     }
 
     @Override
-    public void updateCustomer(Customer c) {
-        jdbc.update("UPDATE customer set name=?, dateOfBirth=?,address=?,email=?,phoneNumber=? where id=?",
-                c.getName(), c.getDateOfBirth(), c.getAddress(), c.getEmail(), c.getPhoneNumber(), c.getId());
+    public void updateCustomer(Customer customer) {
+        String sql = "UPDATE CUSTOMER SET NAME = ?, DATEOFBIRTH = ?," +
+                " ADDRESS = ?, EMAIL =?, PHONENUMBER = ? WHERE ID = ?";
+        Connection conn = null;
+
+        try {
+            conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, customer.getName());
+            ps.setDate(2, Date.valueOf(customer.getDateOfBirth()));
+            ps.setString(3, customer.getAddress());
+            ps.setString(4,customer.getEmail());
+            ps.setString(5,customer.getPhoneNumber());
+            ps.setLong(6, customer.getId());
+            int n = ps.executeUpdate();
+            if (n == 0) {
+                throw new RuntimeException("not updated customer with id " + customer.getId(), null);
+            }
+            if (n > 1) {
+                throw new RuntimeException("more than 1 customer with id " + customer.getId(), null);
+            }
+            log.debug("updated customer {}", customer);
+
+        } catch (SQLException e) {
+            log.error("cannot update customer", e);
+            throw new RuntimeException(e);
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {}
+            }
+        }
     }
 
     @Override
     public void deleteCustomer(Customer customer) {
-        long id = customer.getId();
-        jdbc.update("DELETE FROM customer WHERE id=?", id);
+        String sql = "DElETE FROM CUSTOMER WHERE ID = ?";
+        Connection conn = null;
+
+        try {
+            conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setLong(1, customer.getId());
+            int n = ps.executeUpdate();
+            if (n == 0) {
+                throw new RuntimeException("not deleted customer with id " + customer.getId(), null);
+            }
+            log.debug("deleted customer {}", customer);
+
+        } catch (SQLException e) {
+            log.error("cannot delete customer", e);
+            throw new RuntimeException(e);
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {}
+            }
+        }
     }
 
     @Override
     public List<Customer> getAllCustomers() {
-        return transaction.execute(new TransactionCallback<List<Customer>>() {
-            @Override
-            public List<Customer> doInTransaction(TransactionStatus status) {
-                return jdbc.query("SELECT * FROM customer", customerMapper);
+        String sql = "SELECT * FROM CUSTOMER";
+        Connection conn = null;
+
+        try {
+            conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            List<Customer> customers = new ArrayList<>();
+            while (rs.next()) {
+                Long id = rs.getLong("ID");
+                String name = rs.getString("NAME");
+                LocalDate dateOfBirth = rs.getDate("DATEOFBIRTH").toLocalDate();
+                String address = rs.getString("ADDRESS");
+                String email = rs.getString("EMAIL");
+                String phoneNumber = rs.getString("PHONENUMBER");
+
+                customers.add(new Customer(id, name, dateOfBirth, address, email, phoneNumber));
             }
-        });
+            log.debug("getting all {} customers",customers.size());
+            return customers;
+
+        } catch (SQLException e) {
+            log.error("cannot select customers", e);
+            throw new RuntimeException(e);
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {}
+            }
+        }
     }
 
     @Override
-    public List<Customer> getCustomerByName(String name) {
-        return transaction.execute(new TransactionCallback<List<Customer>>() {
-            @Override
-            public List<Customer> doInTransaction(TransactionStatus status) {
-                return jdbc.query("SELECT * FROM customer where name=?", customerMapper, name);
+    public List<Customer> getCustomerByName(String n) {
+        String sql = "SELECT * FROM CUSTOMER WHERE NAME = ?";
+        Connection conn = null;
+
+        try {
+            conn = dataSource.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, n);
+            ResultSet rs = ps.executeQuery();
+            List<Customer> customers = new ArrayList<>();
+            while (rs.next()) {
+                Long id = rs.getLong("ID");
+                String email = rs.getString("EMAIL");
+                String phoneNumber = rs.getString("PHONENUMBER");
+                String name = rs.getString("NAME");
+                LocalDate dateOfBirth = rs.getDate("DATEOFBIRTH").toLocalDate();
+                String address = rs.getString("ADDRESS");
+
+                customers.add(new Customer(id, name, dateOfBirth, address, email, phoneNumber));
             }
-        });
+            log.debug("getting all {} customers",customers.size());
+            return customers;
+
+        } catch (SQLException e) {
+            log.error("cannot select customers", e);
+            throw new RuntimeException(e);
+
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {}
+            }
+        }
     }
 }
