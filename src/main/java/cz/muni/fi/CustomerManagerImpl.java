@@ -4,32 +4,40 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.*;
 
 /**
  * Implementation of CustomerManager.
  */
 public class CustomerManagerImpl implements CustomerManager {
 
-    private final DataSource dataSource;
     final static Logger log = LoggerFactory.getLogger(CustomerManagerImpl.class);
+    private final DataSource dataSource;
 
     public CustomerManagerImpl (DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
     @Override
-    public void createCustomer(Customer customer) {
-        String sql = "INSERT INTO CUSTOMER " +
-                "(NAME, DATEOFBIRTH, ADDRESS, EMAIL, PHONENUMBER) VALUES (?, ?, ?, ?, ?)";
+    public void createCustomer(Customer customer){
+
+        if (customer == null) {
+            throw new IllegalArgumentException("customer s null");
+        }
+
+        String sql = "INSERT INTO CUSTOMER (NAME, DATEOFBIRTH, ADDRESS, EMAIL, PHONENUMBER) VALUES (?,?,?,?,?)";
         Connection conn = null;
 
         try {
             conn = dataSource.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql);
+            PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS) ;
             ps.setString(1, customer.getName());
             ps.setDate(2, Date.valueOf(customer.getDateOfBirth()));
             ps.setString(3, customer.getAddress());
@@ -37,6 +45,7 @@ public class CustomerManagerImpl implements CustomerManager {
             ps.setString(5,customer.getPhoneNumber());
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
+            System.out.println(keys);
             if (keys.next()) {
                 customer.setId(keys.getLong(1));
             }
@@ -58,6 +67,11 @@ public class CustomerManagerImpl implements CustomerManager {
 
     @Override
     public Customer getCustomer(Long id) {
+
+        if ((id < 0) || (id == null)){
+            throw new IllegalArgumentException("wrong id");
+        }
+
         String sql = "SELECT * FROM CUSTOMER WHERE ID = ?";
         Connection conn = null;
 
@@ -94,6 +108,11 @@ public class CustomerManagerImpl implements CustomerManager {
 
     @Override
     public void updateCustomer(Customer customer) {
+
+        if (customer == null) {
+            throw new IllegalArgumentException("customer s null");
+        }
+
         String sql = "UPDATE CUSTOMER SET NAME = ?, DATEOFBIRTH = ?," +
                 " ADDRESS = ?, EMAIL =?, PHONENUMBER = ? WHERE ID = ?";
         Connection conn = null;
@@ -130,9 +149,16 @@ public class CustomerManagerImpl implements CustomerManager {
     }
 
     @Override
-    public void deleteCustomer(Customer customer) {
+    public void deleteCustomer (Customer customer) {
+
+        if (customer == null) {
+            throw new IllegalArgumentException("customer s null");
+        }
+
         String sql = "DElETE FROM CUSTOMER WHERE ID = ?";
         Connection conn = null;
+
+
 
         try {
             conn = dataSource.getConnection();
@@ -195,6 +221,11 @@ public class CustomerManagerImpl implements CustomerManager {
 
     @Override
     public List<Customer> getCustomerByName(String n) {
+
+        if (n == null){
+            throw new IllegalArgumentException("name is null");
+        }
+
         String sql = "SELECT * FROM CUSTOMER WHERE NAME = ?";
         Connection conn = null;
 

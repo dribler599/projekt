@@ -5,21 +5,28 @@ import org.junit.Test;
 import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 import static org.junit.Assert.*;
 import static org.assertj.core.api.Assertions.*;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {MySpringTestConfig.class})
-@Transactional
 
 /**
  * Test class for MovieManagerImpl
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {MySpringTestConfig.class})
+@Transactional
 public class MovieManagerImplTest {
+
+    @Autowired
     private MovieManager manager;
 
     @Test
@@ -29,9 +36,11 @@ public class MovieManagerImplTest {
 
         Long movieId = movie.getId();
         assertThat(movieId).isNotNull();
+
         Movie gotMovie1 = manager.getMovie(movieId);
+
         assertThat(gotMovie1).isNotNull();
-        assertThat(movie).isEqualTo(gotMovie1);
+        assertThat(movie).isEqualToComparingFieldByField(gotMovie1);
         assertThat(movie).isNotSameAs(gotMovie1);
 
         movie = new MovieBuilder().build();
@@ -39,7 +48,7 @@ public class MovieManagerImplTest {
 
         Movie gotMovie2 = manager.getMovie(movie.getId());
         assertThat(gotMovie2).isNotNull();
-        assertThat(movie).isEqualTo(gotMovie2);
+        assertThat(movie).isEqualToComparingFieldByField(gotMovie2);
         assertThat(movie).isNotSameAs(gotMovie2);
 
         assertThat(gotMovie1).isNotEqualTo(gotMovie2);
@@ -52,35 +61,10 @@ public class MovieManagerImplTest {
         });
     }
 
-    @Test
-    public void addMovieWithWrongParameters() throws Exception {
-        Movie movie = new MovieBuilder().withId(123L).build();
-        try {
-            manager.createMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
 
-        movie = new MovieBuilder().withClassification("25").build();
-        try {
-            manager.createMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-
-        movie = new MovieBuilder().withId(-1L).build();
-        try {
-            manager.createMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-    }
-
-    @Test
-    public void getMovieWithNullMovie() throws Exception {
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
-            manager.getMovie(null);
-        });
+    @Test(expected = IllegalArgumentException.class)
+    public void getMovieWithNullMovie() throws MovieException {
+        manager.getMovie(null);
     }
 
     @Test
@@ -105,7 +89,7 @@ public class MovieManagerImplTest {
         Long movie2Id = movie2.getId();
 
         movie = manager.getMovie(movieId);
-        movie.setName("Pápež Ján Pavol II");
+        movie.setName("Pápež Ján Pavol II.");
         movie.setYear(1988);
         movie.setClassification("15");
         movie.setDescription(null);
@@ -133,35 +117,9 @@ public class MovieManagerImplTest {
         });
     }
 
-    @Test
-    public void updateMovieWithNullParameters() throws Exception {
-        Movie movie = new MovieBuilder().build();
-        manager.createMovie(movie);
-        Long movieId = movie.getId();
-
-        try {
-            movie = manager.getMovie(movieId);
-            movie.setId(null);
-            manager.updateMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-
-        try {
-            movie = manager.getMovie(movieId);
-            movie.setClassification(null);
-            manager.updateMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-
-        try {
-            movie = manager.getMovie(movieId);
-            movie.setName(null);
-            manager.updateMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
+    @Test(expected = IllegalArgumentException.class)
+    public void updateNullMovie() throws MovieException {
+        manager.updateMovie(null);
     }
 
     @Test
@@ -186,21 +144,6 @@ public class MovieManagerImplTest {
         } catch (IllegalArgumentException e) {
         }
 
-        try {
-            movie = manager.getMovie(movieId);
-            movie.setClassification("18A");
-            manager.updateMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-
-        try {
-            movie = manager.getMovie(movieId);
-            movie.setLocation("&§?");
-            manager.updateMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
     }
 
     @Test
@@ -223,27 +166,12 @@ public class MovieManagerImplTest {
         });
     }
 
-    @Test
-    public void deleteMovieWithWrongParameters() throws Exception {
-        Movie movie = new MovieBuilder().build();
-        manager.createMovie(movie);
-
-        try {
-            movie.setId(null);
-            manager.deleteMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-
-        try {
-            movie.setId(-1L);
-            manager.deleteMovie(movie);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
+    @Test(expected = IllegalArgumentException.class)
+    public void deleteNullCustomer() throws MovieException {
+        manager.deleteMovie(null);
     }
 
-    @Test
+    @org.junit.Test
     public void getAllMovies() throws Exception {
         assertThat(manager.getAllMovies()).isEmpty();
 
@@ -252,10 +180,10 @@ public class MovieManagerImplTest {
         manager.createMovie(movie);
         manager.createMovie(movie2);
 
-        assertThat(manager.getAllMovies()).containsOnly(movie, movie2);
+        assertThat(manager.getAllMovies()).contains(movie, movie2);
     }
 
-    @Test
+    @org.junit.Test
     public void getMovieByName() throws Exception {
         Movie movie = new MovieBuilder().withName("Sedem").build();
         Movie movie2 = new MovieBuilder().withName("Zelená míľa ").build();
@@ -265,10 +193,9 @@ public class MovieManagerImplTest {
         assertThat(manager.getMovieByName("Sedem")).containsOnly(movie);
     }
 
-    @Test
-    public void getMovieByNameWithWrongParameters() throws Exception {
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> {
-            manager.getMovieByName(null);
-        });
+    @Test(expected = IllegalArgumentException.class)
+    public void getMovieByNameWithWrongParameters() {
+        manager.getMovieByName(null);
     }
+
 }

@@ -11,13 +11,12 @@ import static java.time.Month.JANUARY;
 import static java.time.Month.OCTOBER;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {MySpringTestConfig.class})
-@Transactional
-
 /**
  * Tests for class CustomerManagerImpl.
  */
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = {MySpringTestConfig.class})
+@Transactional
 public class CustomerManagerImplTest {
 
     @Autowired
@@ -25,6 +24,7 @@ public class CustomerManagerImplTest {
 
     private CustomerBuilder customer1() {
         return new CustomerBuilder()
+                .id(null)
                 .name("Honza")
                 .dateOfBirth(2000,OCTOBER,20)
                 .address("HonzaStreet1")
@@ -34,6 +34,7 @@ public class CustomerManagerImplTest {
 
     private CustomerBuilder customer2() {
         return new CustomerBuilder()
+                .id(null)
                 .name("Petr")
                 .dateOfBirth(1995,JANUARY,13)
                 .address("PetrStreet1")
@@ -42,7 +43,7 @@ public class CustomerManagerImplTest {
     }
 
     @Test
-    public void createCustomer(){
+    public void createCustomer() throws Exception{
         Customer customer = customer1().build();
         manager.createCustomer(customer);
 
@@ -60,7 +61,7 @@ public class CustomerManagerImplTest {
     }
 
     @Test
-    public void deleteCustomer(){
+    public void deleteCustomer() throws Exception{
         Customer customer1 = customer1().build();
         Customer customer2 = customer2().build();
         manager.createCustomer(customer1);
@@ -82,7 +83,7 @@ public class CustomerManagerImplTest {
     }
 
     @Test
-    public void updateCustomerName() {
+    public void updateCustomerName() throws Exception{
         Customer customer1 = customer1().build();
         Customer customer2 = customer2().build();
         manager.createCustomer(customer1);
@@ -105,7 +106,7 @@ public class CustomerManagerImplTest {
     }
 
     @Test
-    public void getAllCustomers(){
+    public void getAllCustomers() throws Exception{
 
         assertThat(manager.getAllCustomers()).isEmpty();
 
@@ -121,11 +122,16 @@ public class CustomerManagerImplTest {
     }
 
     @Test
-    public void getMovieByName(){
+    public void getMovieByName() throws Exception{
+
+        assertThat(manager.getAllCustomers()).isEmpty();
+
         Customer customer1 = customer1().build();
         Customer customer2 = customer2().build();
         manager.createCustomer(customer1);
         manager.createCustomer(customer2);
+
+        System.out.println(customer1.getName() + customer2.getName());
 
         assertThat(manager.getCustomerByName("Honza")).containsOnly(customer1);
     }

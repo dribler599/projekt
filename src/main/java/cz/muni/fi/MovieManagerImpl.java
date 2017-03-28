@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.sql.DataSource;
 
 /**
  * Class implementing MovieManager
@@ -26,9 +25,13 @@ public class MovieManagerImpl implements MovieManager {
 
     @Override
     public void createMovie(Movie movie) throws MovieException{
+
+        if (movie == null) {
+            throw new IllegalArgumentException("customer s null");
+        }
+
         try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement st = con.prepareStatement("INSERT INTO MOVIE (NAME, \"YEAR\", CLASSIFICATION, DESCRIPTION, LOCATION)" +
-                    " values (?,?,?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS)) {
+            try (PreparedStatement st = con.prepareStatement("INSERT INTO MOVIE (NAME, YEAROFRELEASE, CLASSIFICATION, DESCRIPTION, LOCATION) VALUES (?,?,?,?,?)", PreparedStatement.RETURN_GENERATED_KEYS)) {
                 st.setString(1, movie.getName());
                 st.setInt(2, movie.getYear());
                 st.setString(3, movie.getClassification());
@@ -49,6 +52,11 @@ public class MovieManagerImpl implements MovieManager {
 
     @Override
     public Movie getMovie(Long id) throws MovieException{
+
+        if ((id == null) || (id < 0L)){
+            throw new IllegalArgumentException("wrong id");
+        }
+
         try (Connection con = dataSource.getConnection()) {
             try (PreparedStatement st = con.prepareStatement("SELECT * FROM MOVIE WHERE ID = ?")) {
                 st.setLong(1, id);
@@ -56,7 +64,7 @@ public class MovieManagerImpl implements MovieManager {
                 if (rs.next()) {
                     Long nid = rs.getLong("ID");
                     String name = rs.getString("NAME");
-                    int year = rs.getInt("YEAR");
+                    int year = rs.getInt("YEAROFRELEASE");
                     String classification = rs.getString("CLASSIFICATION");
                     String description = rs.getString("DESCRIPTION");
                     String location = rs.getString("LOCATION");
@@ -73,8 +81,13 @@ public class MovieManagerImpl implements MovieManager {
 
     @Override
     public void updateMovie(Movie movie) throws MovieException {
+
+        if ((movie == null) || (movie.getId() < 0) || (movie.getYear() < 0)){
+            throw new IllegalArgumentException("customer s null");
+        }
+
         try (Connection con = dataSource.getConnection()) {
-            try (PreparedStatement st = con.prepareStatement("UPDATE MOVIE SET NAME = ?, YEAR = ?, " +
+            try (PreparedStatement st = con.prepareStatement("UPDATE MOVIE SET NAME = ?, YEAROFRELEASE = ?, " +
                     "CLASSIFICATION = ?, DESCRIPTION = ?, LOCATION = ? WHERE ID = ?")) {
                 st.setString(1, movie.getName());
                 st.setInt(2, movie.getYear());
@@ -99,6 +112,11 @@ public class MovieManagerImpl implements MovieManager {
 
     @Override
     public void deleteMovie(Movie movie) throws MovieException{
+
+        if (movie == null) {
+            throw new IllegalArgumentException("customer s null");
+        }
+
         long id = movie.getId();
         try (Connection con = dataSource.getConnection()) {
             try (PreparedStatement st = con.prepareStatement("DELETE FROM MOVIE WHERE ID = ?")) {
@@ -131,7 +149,7 @@ public class MovieManagerImpl implements MovieManager {
                 String location = rs.getString("LOCATION");
                 Long id = rs.getLong("ID");
                 String name = rs.getString("NAME");
-                int year = rs.getInt("YEAR");
+                int year = rs.getInt("YEAROFRELEASE");
 
                 movies.add(new Movie(id, name, year, classification, description, location));
             }
@@ -153,6 +171,11 @@ public class MovieManagerImpl implements MovieManager {
 
     @Override
     public List<Movie> getMovieByName(String n) {
+
+        if (n == null) {
+            throw new IllegalArgumentException("name is null");
+        }
+
         String sql = "SELECT * FROM MOVIE WHERE NAME = ?";
         Connection conn = null;
 
@@ -165,7 +188,7 @@ public class MovieManagerImpl implements MovieManager {
             while (rs.next()) {
                 Long id = rs.getLong("ID");
                 String name = rs.getString("NAME");
-                int year = rs.getInt("YEAR");
+                int year = rs.getInt("YEAROFRELEASE");
                 String classification = rs.getString("CLASSIFICATION");
                 String description = rs.getString("DESCRIPTION");
                 String location = rs.getString("LOCATION");
