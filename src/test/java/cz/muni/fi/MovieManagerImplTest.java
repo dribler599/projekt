@@ -6,6 +6,8 @@ import org.junit.*;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,17 +19,27 @@ import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.DERBY;
 
 /**
  * Test class for MovieManagerImpl
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {MySpringTestConfig.class})
-@Transactional
 public class MovieManagerImplTest {
 
-    @Autowired
+    private EmbeddedDatabase db;
+
     private MovieManager manager;
+
+    @Before
+    public void setUp() throws Exception {
+        db = new EmbeddedDatabaseBuilder().setType(DERBY).addScript("schema-javadb.sql").build();
+        manager = new MovieManagerImpl(db);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        db.shutdown();
+    }
 
     @Test
     public void createMovie() throws Exception {

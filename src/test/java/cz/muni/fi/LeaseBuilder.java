@@ -8,8 +8,8 @@ import java.time.Month;
  */
 public class LeaseBuilder {
     private Long id;
-    private Movie movie = new MovieBuilder().withId(1L).build();
-    private Customer customer = new CustomerBuilder().id(2L).build();
+    private Movie movie = new MovieBuilder().build();
+    private Customer customer = new CustomerBuilder().build();
     private Integer price = 1000;
     private LocalDate dateOfRent = LocalDate.of(2000, Month.JANUARY, 1);
     private LocalDate dateOfReturn = LocalDate.of(2000, Month.JANUARY, 30);

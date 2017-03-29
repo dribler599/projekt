@@ -1,6 +1,15 @@
 package cz.muni.fi;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -8,19 +17,40 @@ import java.time.Month;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.fail;
+import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.DERBY;
 
 /**
  * Test class for LeaseManagerImpl
  */
-public class LeaseManagerImplTest {
-    private LeaseManager manager;
-    private CustomerManagerImpl customerManager;
-    private MovieManagerImpl movieManager;
 
+public class LeaseManagerImplTest {
+
+    private EmbeddedDatabase db;
+
+    private LeaseManagerImpl manager;
+    private CustomerManager customerManager;
+    private MovieManager movieManager;
+
+    @Before
+    public void setUp() throws Exception {
+        db = new EmbeddedDatabaseBuilder().setType(DERBY).addScript("schema-lease-javadb.sql").build();
+        manager = new LeaseManagerImpl(db);
+        movieManager = new MovieManagerImpl(db);
+        manager.setMovieManager(movieManager);
+        customerManager = new CustomerManagerImpl(db);
+        manager.setCustomerManager(customerManager);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        db.shutdown();
+    }
 
     @Test
     public void createLease() throws Exception {
         Lease lease = new LeaseBuilder().build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
         manager.createLease(lease);
 
         Long leaseId = lease.getId();
@@ -31,6 +61,8 @@ public class LeaseManagerImplTest {
         assertThat(lease).isNotSameAs(gotLease1);
 
         lease = new LeaseBuilder().build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
         manager.createLease(lease);
 
         Lease gotLease2 = manager.getLease(lease.getId());
@@ -51,21 +83,10 @@ public class LeaseManagerImplTest {
     @Test
     public void addLeaseWithNullParameters() throws Exception {
         //Lease lease = new LeaseBuilder().withId(1L).build();
-        Lease lease = new LeaseBuilder().withMovie(null).build();
-        try {
-            manager.createLease(lease);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
 
-        lease = new LeaseBuilder().withCustomer(null).build();
-        try {
-            manager.createLease(lease);
-            fail();
-        } catch (IllegalArgumentException e) {
-        }
-
-        lease = new LeaseBuilder().withPrice(null).build();
+        Lease lease = new LeaseBuilder().withPrice(null).build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
         try {
             manager.createLease(lease);
             fail();
@@ -73,6 +94,8 @@ public class LeaseManagerImplTest {
         }
 
         lease = new LeaseBuilder().withDateOfRent(null).build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
         try {
             manager.createLease(lease);
             fail();
@@ -80,6 +103,8 @@ public class LeaseManagerImplTest {
         }
 
         lease = new LeaseBuilder().withExpectedDateOfReturn(null).build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
         try {
             manager.createLease(lease);
             fail();
@@ -90,6 +115,8 @@ public class LeaseManagerImplTest {
     @Test
     public void addLeaseWithWrongParameters() throws Exception {
         Lease lease = new LeaseBuilder().withId(1L).build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
         try {
             manager.createLease(lease);
             fail();
@@ -117,6 +144,10 @@ public class LeaseManagerImplTest {
                 .withDateOfReturn(LocalDate.of(2001, Month.JANUARY, 30))
                 .withExpectedDateOfReturn(LocalDate.of(2001, Month.JANUARY, 31))
                 .build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
+        movieManager.createMovie(lease2.getMovie());
+        customerManager.createCustomer(lease2.getCustomer());
         manager.createLease(lease);
         manager.createLease(lease2);
         Long leaseId = lease.getId();
@@ -152,6 +183,8 @@ public class LeaseManagerImplTest {
     @Test
     public void updateLeaseWithNullParameters() throws Exception{
         Lease lease = new LeaseBuilder().build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
         manager.createLease(lease);
         Long leaseId = lease.getId();
 
@@ -183,6 +216,8 @@ public class LeaseManagerImplTest {
     @Test
     public void updateLeaseWithWrongParameters() throws Exception{
         Lease lease = new LeaseBuilder().build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
         manager.createLease(lease);
         Long leaseId = lease.getId();
 
@@ -208,12 +243,17 @@ public class LeaseManagerImplTest {
     public void deleteLease() throws Exception {
         Lease lease = new LeaseBuilder().build();
         Lease lease2 = new LeaseBuilder().build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
+        movieManager.createMovie(lease2.getMovie());
+        customerManager.createCustomer(lease2.getCustomer());
         manager.createLease(lease);
         manager.createLease(lease2);
 
+        Long id = lease.getId();
         manager.deleteLease(lease);
 
-        assertThat(manager.getLease(lease.getId())).isNull();
+        assertThat(manager.getLease(id)).isNull();
         assertThat(manager.getLease(lease2.getId())).isNotNull();
     }
 
@@ -227,6 +267,8 @@ public class LeaseManagerImplTest {
     @Test
     public void deleteLeaseWithWrongParameters() throws Exception {
         Lease lease = new LeaseBuilder().build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
         manager.createLease(lease);
 
         try {
@@ -250,6 +292,10 @@ public class LeaseManagerImplTest {
 
         Lease lease = new LeaseBuilder().build();
         Lease lease2 = new LeaseBuilder().build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
+        movieManager.createMovie(lease2.getMovie());
+        customerManager.createCustomer(lease2.getCustomer());
         manager.createLease(lease);
         manager.createLease(lease2);
 
@@ -268,11 +314,14 @@ public class LeaseManagerImplTest {
 
         Lease lease = new LeaseBuilder().withCustomer(customer1).build();
         Lease lease2 = new LeaseBuilder().withCustomer(customer2).build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
+        movieManager.createMovie(lease2.getMovie());
+        customerManager.createCustomer(lease2.getCustomer());
         manager.createLease(lease);
         manager.createLease(lease2);
 
         assertThat(manager.findLeaseByCustomer(customer1))
-                .usingFieldByFieldElementComparator()
                 .containsOnly(lease);
     }
 
@@ -289,11 +338,14 @@ public class LeaseManagerImplTest {
 
         Lease lease = new LeaseBuilder().withMovie(movie1).build();
         Lease lease2 = new LeaseBuilder().withMovie(movie2).build();
+        movieManager.createMovie(lease.getMovie());
+        customerManager.createCustomer(lease.getCustomer());
+        movieManager.createMovie(lease2.getMovie());
+        customerManager.createCustomer(lease2.getCustomer());
         manager.createLease(lease);
         manager.createLease(lease2);
 
         assertThat(manager.findLeaseByMovie(movie1))
-                .usingFieldByFieldElementComparator()
                 .containsOnly(lease);
 
     }

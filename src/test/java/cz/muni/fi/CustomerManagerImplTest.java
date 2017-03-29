@@ -1,8 +1,12 @@
 package cz.muni.fi;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
+import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,17 +14,27 @@ import org.springframework.transaction.annotation.Transactional;
 import static java.time.Month.JANUARY;
 import static java.time.Month.OCTOBER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType.DERBY;
 
 /**
  * Tests for class CustomerManagerImpl.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = {MySpringTestConfig.class})
-@Transactional
 public class CustomerManagerImplTest {
 
-    @Autowired
+    private EmbeddedDatabase db;
+
     private CustomerManager manager;
+
+    @Before
+    public void setUp() throws Exception {
+        db = new EmbeddedDatabaseBuilder().setType(DERBY).addScript("schema-javadb.sql").build();
+        manager = new CustomerManagerImpl(db);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        db.shutdown();
+    }
 
     private CustomerBuilder customer1() {
         return new CustomerBuilder()

@@ -92,7 +92,7 @@ public class Customer {
 
         Customer customer = (Customer) o;
 
-        return id != null ? id.equals(customer.id) : customer.id == null;
+        return id != null && id.equals(customer.id);
     }
 
     @Override

@@ -33,7 +33,7 @@ public class Main {
                 null, null);
         customerManager.createCustomer(customer);
 
-        LeaseManager leaseManager = new LeaseManagerImpl(ds);
+        LeaseManagerImpl leaseManager = new LeaseManagerImpl(ds);
         leaseManager.setMovieManager(movieManager);
         leaseManager.setCustomerManager(customerManager);
         Lease lease = new Lease(null, movie, customer, 200,
