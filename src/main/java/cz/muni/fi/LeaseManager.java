@@ -7,13 +7,16 @@ import java.util.List;
  */
 public interface LeaseManager {
 
+    void setMovieManager(MovieManager movieManager);
+    void setCustomerManager(CustomerManager customerManager);
+
     /**
      * Creates and adds 'lease' to database.
      *
      * @param lease of type Lease
      * @throws IllegalArgumentException when lease has invalid parameters or is null
      */
-    void createLease(Lease lease);
+    void createLease(Lease lease) throws MovieException;
 
     /**
      * Gets lease by its id

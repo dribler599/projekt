@@ -71,4 +71,16 @@ public class Movie {
     public void setLocation(String location) {
         this.location = location;
     }
+
+    @Override
+    public String toString() {
+        return "Movie{" +
+                "id=" + id +
+                ", name=" + name +
+                ", year=" + year +
+                ", classification=" + classification +
+                ", description=" + description +
+                ", location=" + location +
+                '}';
+    }
 }

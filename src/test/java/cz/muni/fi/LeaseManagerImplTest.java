@@ -50,8 +50,8 @@ public class LeaseManagerImplTest {
 
     @Test
     public void addLeaseWithNullParameters() throws Exception {
-        Lease lease = new LeaseBuilder().withId(1L).build();
-        lease = new LeaseBuilder().withMovie(null).build();
+        //Lease lease = new LeaseBuilder().withId(1L).build();
+        Lease lease = new LeaseBuilder().withMovie(null).build();
         try {
             manager.createLease(lease);
             fail();
@@ -150,7 +150,7 @@ public class LeaseManagerImplTest {
     }
 
     @Test
-    public void updateLeaseWithNullParameters() {
+    public void updateLeaseWithNullParameters() throws Exception{
         Lease lease = new LeaseBuilder().build();
         manager.createLease(lease);
         Long leaseId = lease.getId();
@@ -181,7 +181,7 @@ public class LeaseManagerImplTest {
     }
 
     @Test
-    public void updateLeaseWithWrongParameters() {
+    public void updateLeaseWithWrongParameters() throws Exception{
         Lease lease = new LeaseBuilder().build();
         manager.createLease(lease);
         Long leaseId = lease.getId();
