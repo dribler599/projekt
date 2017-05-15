@@ -1,4 +1,4 @@
-package cz.muni.fi;
+package cz.muni.fi.jdbc;
 
 /**
  * Created by Tomas on 27. 3. 2017.

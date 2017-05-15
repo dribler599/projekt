@@ -1,4 +1,4 @@
-package cz.muni.fi;
+package cz.muni.fi.jdbc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -153,22 +153,26 @@ public class CustomerManagerImpl implements CustomerManager {
 
         if (customer == null) {
             throw new IllegalArgumentException("customer s null");
+        }else {
+            Long id = customer.getId();
+            deleteCustomerID(id);
         }
+    }
+
+    public void deleteCustomerID (Long id) {
 
         String sql = "DElETE FROM CUSTOMER WHERE ID = ?";
         Connection conn = null;
 
-
-
         try {
             conn = dataSource.getConnection();
             PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setLong(1, customer.getId());
+            ps.setLong(1, id);
             int n = ps.executeUpdate();
             if (n == 0) {
-                throw new RuntimeException("not deleted customer with id " + customer.getId(), null);
+                throw new RuntimeException("not deleted customer with id " + id, null);
             }
-            log.debug("deleted customer {}", customer);
+            log.debug("deleted customer {}", id);
 
         } catch (SQLException e) {
             log.error("cannot delete customer", e);

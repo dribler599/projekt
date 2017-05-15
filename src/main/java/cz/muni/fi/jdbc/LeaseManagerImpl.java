@@ -1,4 +1,4 @@
-package cz.muni.fi;
+package cz.muni.fi.jdbc;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,6 +138,8 @@ public class LeaseManagerImpl implements LeaseManager {
                 customer = customerManager.getCustomer(customerId);
             } catch (IllegalArgumentException e) {
                 log.error("cannot find customer", e);
+            } catch (CustomerException e) {
+                e.printStackTrace();
             }
             Date dor = rs.getDate("dateofreturn");
             return new Lease(rs.getLong("id"), movie, customer, rs.getInt("price"), rs.getDate("dateofrent").toLocalDate(), rs.getDate("expecteddateofreturn").toLocalDate(), dor!=null ? (dor).toLocalDate() : null);
@@ -263,6 +265,8 @@ public class LeaseManagerImpl implements LeaseManager {
                                 customer = customerManager.getCustomer(customerId);
                             } catch (IllegalArgumentException e) {
                                 log.error("cannot find customer", e);
+                            } catch (CustomerException e) {
+                                e.printStackTrace();
                             }
                             return new Lease(rs.getLong("id"), movie, customer, rs.getInt("price"), rs.getDate("dateofrent").toLocalDate(), rs.getDate("expecteddateofreturn").toLocalDate(), (rs.getDate("dateofreturn")).toLocalDate());
                         }

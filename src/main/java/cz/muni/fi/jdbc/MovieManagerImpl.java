@@ -1,5 +1,6 @@
-package cz.muni.fi;
+package cz.muni.fi.jdbc;
 
+import cz.muni.fi.jdbc.MovieManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class MovieManagerImpl implements MovieManager {
     }
 
     @Override
-    public void createMovie(Movie movie) throws MovieException{
+    public void createMovie(Movie movie){
 
         if (movie == null) {
             throw new IllegalArgumentException("customer s null");
@@ -46,12 +47,12 @@ public class MovieManagerImpl implements MovieManager {
             }
         } catch (SQLException e) {
             log.error("cannot insert movie", e);
-            throw new MovieException("database insert failed", e);
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Movie getMovie(Long id) throws MovieException{
+    public Movie getMovie(Long id) {
 
         if ((id == null) || (id < 0L)){
             throw new IllegalArgumentException("wrong id");
@@ -75,12 +76,12 @@ public class MovieManagerImpl implements MovieManager {
             }
         } catch (SQLException e) {
             log.error("cannot select movie", e);
-            throw new MovieException("database select failed", e);
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void updateMovie(Movie movie) throws MovieException {
+    public void updateMovie(Movie movie){
 
         if ((movie == null) || (movie.getId() < 0) || (movie.getYear() < 0)){
             throw new IllegalArgumentException("customer s null");
@@ -97,21 +98,21 @@ public class MovieManagerImpl implements MovieManager {
                 st.setLong(6, movie.getId());
                 int n = st.executeUpdate();
                 if (n == 0) {
-                    throw new MovieException("not updated movie with id " + movie.getId(), null);
+                    throw new RuntimeException("not updated customer with id " + movie.getId(), null);
                 }
                 if (n > 1) {
-                    throw new MovieException("more than 1 movie with id " + movie.getId(), null);
+                    throw new RuntimeException("more than 1 customer with id " + movie.getId(), null);
                 }
                 log.debug("updated movie {}", movie);
             }
         } catch (SQLException e) {
             log.error("cannot update movie", e);
-            throw new MovieException("database update failed", e);
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public void deleteMovie(Movie movie) throws MovieException{
+    public void deleteMovie(Movie movie){
 
         if (movie == null) {
             throw new IllegalArgumentException("customer s null");
@@ -123,13 +124,13 @@ public class MovieManagerImpl implements MovieManager {
                 st.setLong(1, id);
                 int n = st.executeUpdate();
                 if (n == 0) {
-                    throw new MovieException("not deleted movie with id " + id, null);
+                    throw new RuntimeException("not deleted movie with id " + id, null);
                 }
                 log.debug("deleted movie {}",id);
             }
         } catch (SQLException e) {
             log.error("cannot delete movie", e);
-            throw new MovieException("database delete failed", e);
+            throw new RuntimeException(e);
         }
     }
 

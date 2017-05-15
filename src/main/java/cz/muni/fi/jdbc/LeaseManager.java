@@ -1,4 +1,4 @@
-package cz.muni.fi;
+package cz.muni.fi.jdbc;
 
 import java.util.List;
 

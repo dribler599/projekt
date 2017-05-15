@@ -1,4 +1,4 @@
-package cz.muni.fi;
+package cz.muni.fi.jdbc;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ public interface CustomerManager {
      * @param customer Customer to be created.
      * @throws IllegalArgumentException when movie has invalid parameters or is null
      */
-    void createCustomer(Customer customer);
+    void createCustomer(Customer customer) throws CustomerException;
 
     /**
      * Returns customer with given id.
@@ -22,7 +22,7 @@ public interface CustomerManager {
      * @return Customer with given id.
      * @throws IllegalArgumentException if id is invalid or null
      */
-    Customer getCustomer(Long id);
+    Customer getCustomer(Long id) throws CustomerException;
 
     /**
      * Updates customer.
@@ -30,7 +30,7 @@ public interface CustomerManager {
      * @param customer Customer to be updated.
      * @throws IllegalArgumentException when movie has invalid parameters or is null
      */
-    void updateCustomer(Customer customer);
+    void updateCustomer(Customer customer) throws CustomerException;
 
     /**
      *Deletes customer from database.
@@ -38,14 +38,22 @@ public interface CustomerManager {
      * @param customer Customer to be deleted.
      * @throws IllegalArgumentException when movie is invalid or null
      */
-    void deleteCustomer(Customer customer);
+    void deleteCustomer(Customer customer) throws CustomerException;
+
+    /**
+     *Deletes customer from database.
+     *
+     * @param id Customer to be deleted.
+     * @throws IllegalArgumentException when movie is invalid or null
+     */
+    void deleteCustomerID(Long id) throws CustomerException;
 
     /**
      * Returns list of all customers.
      *
      * @return List of customers.
      */
-    List<Customer> getAllCustomers();
+    List<Customer> getAllCustomers() throws CustomerException;
 
     /**
      * Returns list of customers with given name.
@@ -54,5 +62,5 @@ public interface CustomerManager {
      * @return List of customers with given name.
      * @throws IllegalArgumentException if 'name' is invalid or null
      */
-    List<Customer> getCustomerByName(String name);
+    List<Customer> getCustomerByName(String name) throws CustomerException;
 }

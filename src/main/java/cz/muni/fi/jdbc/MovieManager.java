@@ -1,4 +1,4 @@
-package cz.muni.fi;
+package cz.muni.fi.jdbc;
 
 import java.util.List;
 
@@ -45,7 +45,7 @@ public interface MovieManager {
      *
      * @return all movies in form of List<Movie>
      */
-    List<Movie> getAllMovies();
+    List<Movie> getAllMovies() throws MovieException;
 
     /**
      * Gets movies by their name
@@ -54,5 +54,5 @@ public interface MovieManager {
      * @return list of all movies with 'name' in form of List<Movie>
      * @throws IllegalArgumentException if 'name' is invalid or null
      */
-    List<Movie> getMovieByName(String name);
+    List<Movie> getMovieByName(String name) throws MovieException;
 }

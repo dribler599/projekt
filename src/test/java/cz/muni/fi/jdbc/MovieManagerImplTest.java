@@ -1,21 +1,10 @@
-package cz.muni.fi;
+package cz.muni.fi.jdbc;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.*;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 import static org.junit.Assert.*;
 import static org.assertj.core.api.Assertions.*;
@@ -206,7 +195,7 @@ public class MovieManagerImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getMovieByNameWithWrongParameters() {
+    public void getMovieByNameWithWrongParameters() throws MovieException {
         manager.getMovieByName(null);
     }
 

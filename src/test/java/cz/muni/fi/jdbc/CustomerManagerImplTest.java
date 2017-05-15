@@ -1,15 +1,10 @@
-package cz.muni.fi;
+package cz.muni.fi.jdbc;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.annotation.Transactional;
 
 import static java.time.Month.JANUARY;
 import static java.time.Month.OCTOBER;
@@ -70,7 +65,7 @@ public class CustomerManagerImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void createNullCustomer() {
+    public void createNullCustomer() throws CustomerException {
         manager.createCustomer(null);
     }
 
@@ -92,7 +87,7 @@ public class CustomerManagerImplTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void deleteNullCustomer() {
+    public void deleteNullCustomer() throws CustomerException {
         manager.deleteCustomer(null);
     }
 
@@ -115,7 +110,7 @@ public class CustomerManagerImplTest {
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void updateNullCustomer() {
+    public void updateNullCustomer() throws CustomerException {
         manager.updateCustomer(null);
     }
 
