@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/projekt.iml" filepath="$PROJECT_DIR$/projekt.iml" />
-      <module fileurl="file://$PROJECT_DIR$/pb168/videorentalshop.iml" filepath="$PROJECT_DIR$/pb168/videorentalshop.iml" />
-      <module fileurl="file://$PROJECT_DIR$/webapp/webapp.iml" filepath="$PROJECT_DIR$/webapp/webapp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/videorentalshop.iml" filepath="$PROJECT_DIR$/videorentalshop.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../webapp.iml" filepath="$PROJECT_DIR$/../webapp.iml" />
     </modules>
   </component>
 </project>
